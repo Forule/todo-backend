@@ -1,0 +1,32 @@
+{
+  "name": "todo-backend",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/Forule/todo-backend#readme",
+  "bugs": {
+    "url": "https://github.com/Forule/todo-backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Forule/todo-backend.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.3.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "cors": "^2.8.6"
+  }
+}
