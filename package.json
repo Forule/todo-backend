@@ -27,6 +27,9 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "cors": "^2.8.6"
+    "cors": "^2.8.6",
+    "pg": "^8.19.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.28"
   }
 }
