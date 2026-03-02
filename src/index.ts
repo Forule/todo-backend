@@ -1,7 +1,9 @@
+import "reflect-metadata"
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
+import { database } from "./database.js";
 
 
 const app = express();
@@ -9,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
- 
+database.initialize()
 
 interface Todo {
   id: string | number;
