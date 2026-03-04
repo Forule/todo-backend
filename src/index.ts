@@ -2,7 +2,7 @@ import "reflect-metadata";
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import { database } from "./database.js";
-import { Todo } from "./entities.js";
+import { Todo } from "./entities/entities.js";
 import { stringify } from "node:querystring";
 
 const app = express();

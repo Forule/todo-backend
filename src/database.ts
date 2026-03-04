@@ -1,6 +1,6 @@
 import "reflect-metadata"
 import {DataSource} from "typeorm"
-import { Todo } from "./entities.js"
+import { Todo } from "./entities/entities.js"
 
 export const database: DataSource = new DataSource({
 

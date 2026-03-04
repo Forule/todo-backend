@@ -1,4 +1,5 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm"
+import {Column, Entity, PrimaryGeneratedColumn, ManyToOne} from "typeorm"
+import { User } from "./User.js";
 
 
 @Entity()
@@ -11,5 +12,8 @@ export class Todo {
 
     @Column({type: "boolean", default: false})
     completed: boolean = false
+
+    @ManyToOne(() => User, (user) => user.todos, { nullable: true })
+    user!: User;
 
 }
