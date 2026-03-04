@@ -4,6 +4,9 @@ import cors from "cors";
 import { database } from "./database.js";
 import { Todo } from "./entities/entities.js";
 import { stringify } from "node:querystring";
+import bcrypt from 'bcrypt';
+import { User } from './entities/User.js';
+
 
 const app = express();
 app.use(cors({
@@ -30,6 +33,76 @@ async function startServer() {
       const allTodos = await todoRepo.find();
       res.json(allTodos);
     });
+
+    app.post("/register", async (req, res) => {
+
+      try{
+        const { username, password} = req.body;
+
+        if(!username || !password){
+          return res.status(400).json({message: "Bitte Name und Passwort angeben!"})
+        }
+
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds)
+
+        const userRepositry = database.getRepository(User)
+
+        const newUser = userRepositry.create({
+          username,
+          password: hashedPassword
+        })
+        
+        await userRepositry.save(newUser)
+        res.status(201).json({ message: "Account erfolgreich erstellt!" })
+      } catch (error: any){
+
+        if (error.code === '23505') {
+          return res.status(400).json({ message: "Dieser Nutzername ist schon vergeben." });
+        }
+        console.error(error);
+        res.status(500).json({ message: "Da ist was schiefgelaufen..." });
+      }
+
+      }
+    )
+
+    app.post("/login", async (req, res) => {
+
+      try{
+        const {username, password} = req.body
+
+        const userRepositry = database.getRepository(User)
+        
+        const user = await userRepositry.findOneBy({username})
+        
+        if(!user){
+
+          return res.status(401).json({ message: "Ungültige Anmeldedaten." });
+
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password)
+
+        if (!isPasswordValid) {
+
+          return res.status(401).json({ message: "Ungültige Anmeldedaten." });
+
+        }
+
+        res.json({ 
+        message: "Login erfolgreich!",
+        user: { id: user.id, username: user.username }
+        })
+
+
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Interner Serverfehler" });
+      }
+
+
+    })
 
     // NEUES SPEICHERN
     app.post("/todos", async (req: Request, res: Response) => {
