@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import { Todo } from "./entities.js"; // Importiere deine Todo-Entity
+import { Todo } from "./entities.js"; 
 
 @Entity()
 export class User {
@@ -10,9 +10,9 @@ export class User {
   username!: string;
 
   @Column()
-  password!: string; // Hier speichern wir später nur den HASH!
+  password!: string;
 
-  // Ein User kann viele Todos haben
+  
   @OneToMany(() => Todo, (todo) => todo.user)
   todos!: Todo[];
 }

@@ -1,6 +1,7 @@
 import "reflect-metadata"
 import {DataSource} from "typeorm"
 import { Todo } from "./entities/entities.js"
+import { User } from "./entities/User.js"
 
 export const database: DataSource = new DataSource({
 
@@ -11,8 +12,6 @@ export const database: DataSource = new DataSource({
     password: "devpass",
     database: "todo",
     synchronize: true,
-    entities: [Todo],
+    entities: [Todo, User],
 
 })
-
-
