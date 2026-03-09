@@ -6,6 +6,7 @@ import { Todo } from "./entities/entities.js";
 import { stringify } from "node:querystring";
 import bcrypt from 'bcrypt';
 import { User } from './entities/User.js';
+import jwt from 'jsonwebtoken';
 
 
 const app = express();
@@ -16,6 +17,27 @@ app.use(cors({
 app.use(express.json());
 
 const PORT = 3000;
+const JWT_SECRET = process.env.JWT_SECRET || "super-secret-key";
+
+// --- AUTH MIDDLEWARE ---
+// Extends Request to include userId from JWT
+interface AuthRequest extends Request {
+  userId?: string;
+}
+
+// Middleware to verify JWT token and extract userId
+function authenticateToken(req: AuthRequest, res: Response, next: Function) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader?.split(" ")[1];
+  
+  if (!token) return res.status(401).json({ message: "Token required" });
+  
+  jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
+    if (err) return res.status(403).json({ message: "Invalid token" });
+    req.userId = decoded.userId;
+    next();
+  });
+}
 
 // Die Hauptfunktion verbindet die DB und startet danach den Server
 async function startServer() {
@@ -26,11 +48,12 @@ async function startServer() {
 
     const todoRepo = database.getRepository(Todo);
 
-    // --- ROUTES ---
-
-    // ALLE ABFRUFEN
-    app.get("/todos", async (_req: Request, res: Response) => {
-      const allTodos = await todoRepo.find();
+    // ALLE ABFRUFEN - Nur Todos des eingeloggten Users
+    app.get("/todos", authenticateToken, async (req: AuthRequest, res: Response) => {
+      const userId = req.userId!;
+      const allTodos = await todoRepo.find({
+        where: { user: { id: userId } }
+      });
       res.json(allTodos);
     });
 
@@ -90,8 +113,15 @@ async function startServer() {
 
         }
 
+        const token = jwt.sign(
+          { userId: user.id, username: user.username },
+          JWT_SECRET,
+          { expiresIn: "3d" }
+        );
+
         res.json({ 
         message: "Login erfolgreich!",
+        token,
         user: { id: user.id, username: user.username }
         })
 
@@ -104,32 +134,49 @@ async function startServer() {
 
     })
 
-    // NEUES SPEICHERN
-    app.post("/todos", async (req: Request, res: Response) => {
-      // Wichtig: In deiner Entity heißt das Feld 'name', nicht 'title'!
-      const newTodo = todoRepo.create(req.body); 
+    // NEUES SPEICHERN - Automatisch dem eingeloggten User zuweisen
+    app.post("/todos", authenticateToken, async (req: AuthRequest, res: Response) => {
+      const userId = req.userId!;
+      const newTodo = todoRepo.create({ 
+        ...req.body, 
+        user: { id: userId }  // Assign todo to current user
+      }); 
       await todoRepo.save(newTodo);
       res.status(201).json(newTodo);
     });
 
-    // LÖSCHEN
-    app.delete("/todos/:id", async (req: Request, res: Response) => {
+    // LÖSCHEN - Nur eigene Todos löschen
+    app.delete("/todos/:id", authenticateToken, async (req: AuthRequest, res: Response) => {
       const { id } = req.params;
+      const userId = req.userId!;
+      
+      const todo = await todoRepo.findOne({
+        where: { id: id as string, user: { id: userId } }
+      });
+      
+      if (!todo) {
+        return res.status(404).json({ message: "Todo nicht gefunden oder nicht berechtigt" });
+      }
+      
       await todoRepo.delete(id as string);
       res.status(204).send();
     });
 
-    // STATUS ÄNDERN (PATCH)
-    app.patch("/todos/:id", async (req: Request, res: Response) => {
+    // STATUS ÄNDERN (PATCH) - Nur eigene Todos ändern
+    app.patch("/todos/:id", authenticateToken, async (req: AuthRequest, res: Response) => {
       const { id } = req.params;
-      const todo = await todoRepo.findOneBy({ id: id as string });
+      const userId = req.userId!;
+      
+      const todo = await todoRepo.findOne({
+        where: { id: id as string, user: { id: userId } }
+      });
 
       if (todo) {
         todo.completed = !todo.completed;
         await todoRepo.save(todo);
         res.json(todo);
       } else {
-        res.status(404).json({ message: "Todo nicht gefunden" });
+        res.status(404).json({ message: "Todo nicht gefunden oder nicht berechtigt" });
       }
     });
 
