@@ -13,7 +13,7 @@ export class Todo {
     @Column({type: "boolean", default: false})
     completed: boolean = false
 
-    @ManyToOne(() => User, (user) => user.todos, { nullable: true })
+    @ManyToOne(() => User, (user) => user.todos, { nullable: true, eager: true })
     user!: User;
 
 }

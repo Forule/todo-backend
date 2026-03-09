@@ -54,8 +54,24 @@ async function startServer() {
       const allTodos = await todoRepo.find({
         where: { user: { id: userId } }
       });
-      res.json(allTodos);
-    });
+      //console.log(allTodos)
+      res.json(allTodos.map((todo) => {  
+        
+        return ({
+
+          id: todo.id,
+          name: todo.name,
+          completed: todo.completed,
+          username: todo.user.username
+
+        })
+      
+      
+      
+      } ));
+    
+    
+      });
 
     app.post("/register", async (req, res) => {
 
