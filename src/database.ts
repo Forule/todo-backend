@@ -13,5 +13,6 @@ export const database: DataSource = new DataSource({
     database: "todo",
     synchronize: true,
     entities: [Todo, User],
+    connectTimeoutMS: 5000
 
 })

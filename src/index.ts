@@ -42,6 +42,7 @@ function authenticateToken(req: AuthRequest, res: Response, next: Function) {
 // Die Hauptfunktion verbindet die DB und startet danach den Server
 async function startServer() {
   try {
+    console.log("server startet")
     // 1. Verbindung zur Postgres-DB herstellen
     await database.initialize();
     console.log("✅ Mit PostgreSQL verbunden");
