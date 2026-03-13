@@ -10,8 +10,9 @@ import jwt from 'jsonwebtoken';
 
 
 const app = express();
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:5173";
 app.use(cors({
-  origin: "http://localhost:5173", // Hier die URL deines Frontends eintragen!
+  origin: CORS_ORIGIN,
   methods: ["GET", "POST", "PATCH", "DELETE"]
 }));
 app.use(express.json());
