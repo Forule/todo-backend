@@ -29,7 +29,7 @@ The backend is built using a modern, type-safe architecture:
 4.  **Security & Middleware:** Implements necessary headers and error-handling middleware to provide a secure and stable interface for the frontend.
 
 ## License
-Copyright (c) 2026 Constantin Müller  
+Copyright (c) 2026 Jan Muljowin
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for more details.
 
 ## Forbidden
